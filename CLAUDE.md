@@ -6,6 +6,7 @@
 
 - `.claude-plugin/marketplace.json` — 公開しているプラグインの一覧。プラグインを増やしたらここに足す
 - `plugins/<name>/` — プラグイン本体。`.claude-plugin/plugin.json` / `hooks/hooks.json` / `scripts/` / `skills/<skill>/SKILL.md` / `README.md` / `LICENSE`
+- `docs/images/` — README に貼る画像。`plugins/<name>/` の中には置かない（プラグインのフォルダは利用者のインストールで丸ごと写されるため）
 - 単体のスキルを出すときは `skills/<name>/` に平置きし、`marketplace.json` で束ねる（まだ無い）
 
 ## 守ること

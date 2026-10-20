@@ -12,9 +12,9 @@ Documentation is mainly in Japanese; each plugin README starts with an English s
 
 ## プラグイン一覧
 
-| 名前 | できること | 入っているもの |
-|---|---|---|
-| [todo-progress](plugins/todo-progress/) | `TODO.md` のチェックボックスを見出しごとに数え、進捗バー・残り件数・公開までの残り・前回の区切りからの増減を表にする。セッションの開始時に Claude が最初の返答で見せる | フック（SessionStart）、スキル `/todo-progress:progress` |
+| 名前 | できること | 入っているもの | イメージ |
+|---|---|---|---|
+| [todo-progress](plugins/todo-progress/) | `TODO.md` のチェックボックスを見出しごとに数え、進捗バー・残り件数・公開までの残り・前回の区切りからの増減を表にする。セッションの開始時に Claude が最初の返答で見せる | フック（SessionStart）、スキル `/todo-progress:progress` | <img src="docs/images/todo-progress.png" alt="Claude の返答に進捗表が表示された画面" width="360"> |
 
 ## 導入
 
