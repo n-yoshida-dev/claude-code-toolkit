@@ -1,0 +1,16 @@
+{
+  "description": "todo-progress のフック。セッションの開始時に TODO.md の進捗表と未完タスクを Claude に渡す。処理の本体は scripts/session-start.sh",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/session-start.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
