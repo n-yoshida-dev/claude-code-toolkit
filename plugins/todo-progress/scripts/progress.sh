@@ -39,11 +39,14 @@ render_table() {
     function register(s) { if (!(s in seen)) { seen[s] = 1; order[++n] = s } }
     BEGIN { W = 20; kind = "phase"; sec = "（見出しなし / no heading）"; release = "" }
     /^## / {
+      # 公開の節を抜けたら、そこから後ろの未完は「公開まで残り」に数えない
+      if (in_release) past_release = 1
       sec = $0; sub(/^## +/, "", sec)
       kind = kind_of(sec)
+      in_release = 0
       if (kind == "phase") {
         register(sec)
-        if (release == "" && is_release(sec)) release = sec
+        if (release == "" && is_release(sec)) { release = sec; in_release = 1 }
       }
       next
     }
@@ -52,15 +55,13 @@ render_table() {
       next
     }
     /^[ \t]*[-*+] \[ \]/ {
-      if (kind == "ask") ask_open++; else if (kind == "hold") hold_open++; else if (kind == "after") after_open++; else { register(sec); open[sec]++ }
+      if (kind == "ask") ask_open++; else if (kind == "hold") hold_open++; else if (kind == "after") after_open++; else { register(sec); open[sec]++; if (!past_release) release_open++ }
       next
     }
     END {
       printf "%-20s 完了率  残り/全体  フェーズ   (done %%, open/total, phase)\n", ""
       for (i = 1; i <= n; i++) {
         s = order[i]; d = done[s] + 0; o = open[s] + 0; t = d + o
-        # 公開の節とその上の節の未完を足す（公開の節の後ろは数えない）
-        if (release != "" && !past_release) { release_open += o; if (s == release) past_release = 1 }
         if (t == 0) { undefined++; printf "%s    -   タスク未定義 / no tasks  %s\n", bar(0, 0), s; continue }
         td += d; to += o
         printf "%s %4d%%  %4d / %-4d  %s\n", bar(d, t), pct(d, t), o, t, s
@@ -126,7 +127,8 @@ delta_line() {
   read -r bd bo <<< "$base_counts"
   read -r nd no <<< "$now_counts"
   local plus_done=$((nd - bd)) plus_new=$(((nd + no) - (bd + bo)))
-  printf '%s：完了 +%d 件、新たに見つかったタスク +%d 件 / %s: +%d done, +%d new tasks\n' \
+  # タスクを消したり完了を戻したりすると減るので、符号を付けて出す
+  printf '%s：完了 %+d 件、タスクの数 %+d 件 / %s: done %+d, tasks %+d\n' \
     "$label_ja" "$plus_done" "$plus_new" "$label_en" "$plus_done" "$plus_new"
 }
 

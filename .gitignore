@@ -2,6 +2,9 @@
 .claude/settings.local.json
 CLAUDE.local.md
 
+# 作者の手元のタスク管理（Beads）の置き場への案内。手元の絶対パスが入る
+.beads/
+
 # エディタ・OS
 .DS_Store
 .vscode/

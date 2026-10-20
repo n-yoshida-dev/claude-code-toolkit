@@ -22,7 +22,7 @@ Heading words for "release", "after release", "on hold" and "waiting" are config
 回答待ち：1 件（回答済み 0 件） / Waiting: 1 open, 0 answered
 公開後（合計に含めない）：1 件（済み 0 件） / After release (not in total): 1 open, 0 done
 
-前回の区切り（2026-10-20）から：完了 +1 件、新たに見つかったタスク +1 件 / Since last checkpoint (2026-10-20): +1 done, +1 new tasks
+前回の区切り（2026-10-20）から：完了 +1 件、タスクの数 +1 件 / Since last checkpoint (2026-10-20): done +1, tasks +1
 ```
 
 ## 入っているもの
@@ -125,7 +125,8 @@ TODO.md の書き方の例：
 
 ## 事例
 
-作者は個人開発の 7 つのリポジトリで、このプラグインの元になった版（同じ集計）を使っています。2026-10-20 までの 30 日間で 73 回使いました。
+作者は個人開発の 7 つのリポジトリで、このプラグインの元になった版（同じ集計）を使っています。
+作者のセッション記録の集計では、2026-08-22〜10-18 の 58 日間に、セッション開始時の表が 84 回出ました。
 たとえば次のような TODO.md を、開くたびに 1 枚の表で見ています。
 
 - タスクが 100 件を超え、フェーズが 6 つ以上ある TODO.md
@@ -135,10 +136,12 @@ TODO.md の書き方の例：
 
 フックは、あなたの権限でシェルスクリプトを実行します。中身は次のとおりです。
 
-- **読むもの**：プロジェクトの `TODO.md`（設定したファイル）と、Git の履歴（`git log` / `git show` で区切りのファイルと TODO.md の過去の版）
+- **読むもの**：プロジェクトの `TODO.md`（設定したファイル）、フックに渡される入力（JSON）の `cwd`、
+  Git の情報（`git rev-parse` でリポジトリのルート、`git log` / `git show` で区切りのファイルと TODO.md の過去の版）
 - **書くもの**：なし（ファイルを作ったり書き換えたりしません）
 - **送るもの・取りに行くもの**：なし（ネットワークに接続しません）
-- **使うコマンド**：`bash`・`awk`・`sed`・`grep`・`git`・`date`。処理は [scripts/](scripts/) の 3 本だけです
+- **使うコマンド**：`bash`・`awk`・`sed`・`grep`・`head`・`tail`・`cmp`・`cat`・`dirname`・`date`・`git`、あれば `jq`
+- 実行時に動くのは [scripts/](scripts/) の `config.sh`・`progress.sh`・`session-start.sh` の 3 本です（`test-progress.sh` は開発用のテスト）
 - TODO.md が無いフォルダでは何も出さずに終わります
 
 ## 更新

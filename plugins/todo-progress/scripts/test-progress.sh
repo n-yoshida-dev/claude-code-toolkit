@@ -85,7 +85,7 @@ check "保留の節を別枠で出す" has "$OUT" "保留（合計に含めな�
 check "確認待ちの節を別枠で出す" has "$OUT" "回答待ち：1 件（回答済み 0 件）"
 check "コードブロックで囲む" test "$(head -n 1 <<< "$OUT")" = '```'
 
-BRIEF=$(CLAUDE_PROJECT_DIR="$WORK/ordered" bash "$BRIEFING")
+BRIEF=$(CLAUDE_PROJECT_DIR="$WORK/ordered" bash "$BRIEFING" < /dev/null)
 FIRST=$(grep -m 1 '(TODO.md:' <<< "$BRIEF")
 check "起動時：進捗表を含む" has "$BRIEF" "公開まで残り 4 件"
 check "起動時：最初の返答に貼る指示を日英で出す" has "$BRIEF" "Paste this progress table"
@@ -111,7 +111,7 @@ cat > "$WORK/old/TODO.md" <<'EOF'
 EOF
 OUT=$(bash "$PROGRESS" "$WORK/old")
 check "公開の節が末尾：公開まで残りは上の節を含めて数える" has "$OUT" "公開まで残り 3 件"
-BRIEF=$(CLAUDE_PROJECT_DIR="$WORK/old" bash "$BRIEFING")
+BRIEF=$(CLAUDE_PROJECT_DIR="$WORK/old" bash "$BRIEFING" < /dev/null)
 FIRST=$(grep -m 1 '(TODO.md:' <<< "$BRIEF")
 check "公開の節が末尾：その未完を先頭に出す" has "$FIRST" "(TODO.md:8) 公開する"
 
@@ -130,7 +130,7 @@ EOF
 OUT=$(bash "$PROGRESS" "$WORK/none")
 check "公開の節が無ければ（公開後だけでも）公開まで残りを出さない" lacks "$OUT" "公開まで残り"
 check "公開の節が無くても表は出す（未完 1 / 2）" has "$OUT" "   1 / 2     合計 / Total"
-BRIEF=$(CLAUDE_PROJECT_DIR="$WORK/none" bash "$BRIEFING")
+BRIEF=$(CLAUDE_PROJECT_DIR="$WORK/none" bash "$BRIEFING" < /dev/null)
 check "公開の節が無ければ一覧の見出しは 1 つ" has "$BRIEF" "### 未完タスク（先頭レベルのみ）2 件。上から 12 件まで"
 check "公開の節が無ければ公開の節の見出しを出さない" lacks "$BRIEF" "### 公開の節"
 
@@ -185,7 +185,7 @@ OUT=$(CLAUDE_PLUGIN_OPTION_TODO_FILE=tasks.md CLAUDE_PLUGIN_OPTION_RELEASE_WORDS
 check "変えた見出し語：公開の節を見つける" has "$OUT" "公開まで残り 2 件（上から「リリース」の節まで）"
 check "変えた見出し語：保留の節を別枠にする" has "$OUT" "保留（合計に含めない）：1 件"
 check "変えたファイル名：見出しに出す" has "$OUT" "Progress from tasks.md"
-BRIEF=$(CLAUDE_PROJECT_DIR="$WORK/custom" CLAUDE_PLUGIN_OPTION_TODO_FILE=tasks.md CLAUDE_PLUGIN_OPTION_RELEASE_WORDS="リリース" bash "$BRIEFING")
+BRIEF=$(CLAUDE_PROJECT_DIR="$WORK/custom" CLAUDE_PLUGIN_OPTION_TODO_FILE=tasks.md CLAUDE_PLUGIN_OPTION_RELEASE_WORDS="リリース" bash "$BRIEFING" < /dev/null)
 check "変えたファイル名：起動時の一覧の行番号に出す" has "$BRIEF" "(tasks.md:7) 出す"
 
 # スキルからは `キー=値` の引数で届く。置き換えが効かなかった ${user_config.…} は未設定として扱う
@@ -205,14 +205,42 @@ git -C "$WORK/git" add TODO.md HANDOFF.md
 git -C "$WORK/git" commit -q -m "区切り 1"
 printf '## 作業\n\n- [x] A\n- [ ] B\n- [ ] C\n' > "$WORK/git/TODO.md"
 OUT=$(bash "$PROGRESS" "$WORK/git")
-check "区切りから：完了と新しいタスクの増減を出す" has "$OUT" "完了 +1 件、新たに見つかったタスク +1 件 / Since last checkpoint"
+check "区切りから：完了とタスクの数の増減を出す" has "$OUT" "完了 +1 件、タスクの数 +1 件 / Since last checkpoint"
 OUT=$(CLAUDE_PLUGIN_OPTION_CHECKPOINT_FILE="" bash "$PROGRESS" "$WORK/git")
 check "区切りのファイルを空にすると、増減の行を出さない" lacks "$OUT" "Since last checkpoint"
+# 区切りのあとにタスクを消すと、減った数を符号付きで出す（+-1 にしない）
+printf '## 作業\n\n- [ ] B\n' > "$WORK/git/TODO.md"
+OUT=$(bash "$PROGRESS" "$WORK/git")
+check "区切りから：減ったときは符号付きで出す" has "$OUT" "完了 +0 件、タスクの数 -1 件"
+
+# 同じ見出しが公開の節の前と後ろにある。後ろの節の未完は「公開まで残り」に数えない
+mkdir -p "$WORK/repeat"
+cat > "$WORK/repeat/TODO.md" <<'EOF'
+## Build
+
+- [ ] A
+
+## Release
+
+- [ ] Ship
+
+## Build
+
+- [ ] B
+EOF
+OUT=$(bash "$PROGRESS" "$WORK/repeat")
+check "同じ見出しが公開の後ろにも：後ろの未完は数えない" has "$OUT" "2 open until release"
+
+# worktree に入ったセッション。CLAUDE_PROJECT_DIR が元のフォルダのままでも、フックの入力の cwd の TODO.md を読む
+OUT=$(CLAUDE_PROJECT_DIR="$WORK/ordered" bash "$BRIEFING" <<< "{\"hook_event_name\":\"SessionStart\",\"cwd\":\"$WORK/old\"}")
+check "フックの入力の cwd を優先する" has "$OUT" "公開まで残り 3 件"
+OUT=$(CLAUDE_PROJECT_DIR="$WORK/ordered" bash "$BRIEFING" <<< "{\"cwd\":\"$WORK/empty\"}")
+check "cwd に TODO.md が無ければ CLAUDE_PROJECT_DIR を読む" has "$OUT" "公開まで残り 4 件"
 
 # TODO.md が無いフォルダでは、どちらも何も出さない
 mkdir -p "$WORK/empty"
 check "TODO.md が無ければ進捗表は何も出さない" test -z "$(bash "$PROGRESS" "$WORK/empty")"
-check "TODO.md が無ければ起動時の知らせも何も出さない" test -z "$(CLAUDE_PROJECT_DIR="$WORK/empty" bash "$BRIEFING")"
+check "TODO.md が無ければ起動時の知らせも何も出さない" test -z "$(CLAUDE_PROJECT_DIR="$WORK/empty" bash "$BRIEFING" < /dev/null)"
 
 if [ "$failures" -gt 0 ]; then
   echo "NG が $failures 件"

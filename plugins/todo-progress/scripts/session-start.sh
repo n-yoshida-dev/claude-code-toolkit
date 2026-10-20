@@ -14,7 +14,29 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1091  # config.sh は同じフォルダにある。CI は -x なしで回すので中までは追わない
 . "$HERE/config.sh"
 
+# 読むプロジェクトを決める。フックの入力（標準入力の JSON）の cwd を優先する。
+# worktree に入ったセッションでは、/clear・再開・要約のあとも CLAUDE_PROJECT_DIR が元のフォルダを指したままで、cwd だけが今の作業フォルダを指すため。
+# cwd とその Git のルートに TODO.md が無ければ、CLAUDE_PROJECT_DIR（無ければカレントディレクトリ）を使う
+hook_cwd() {
+  [ -t 0 ] && return 0
+  local input
+  input="$(cat)"
+  if command -v jq >/dev/null 2>&1; then
+    jq -r '.cwd // empty' <<< "$input" 2>/dev/null || true
+  else
+    sed -n 's/.*"cwd"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' <<< "$input" | head -n 1
+  fi
+}
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+CWD="$(hook_cwd)"
+if [ -n "$CWD" ] && [ -d "$CWD" ]; then
+  for candidate in "$CWD" "$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null)"; do
+    if [ -n "$candidate" ] && [ -f "$candidate/$TP_TODO_FILE" ]; then
+      PROJECT_DIR="$candidate"
+      break
+    fi
+  done
+fi
 TODO="$PROJECT_DIR/$TP_TODO_FILE"
 [ -f "$TODO" ] || exit 0
 
