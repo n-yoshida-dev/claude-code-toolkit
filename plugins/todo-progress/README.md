@@ -12,7 +12,7 @@ Heading words for "release", "after release", "on hold" and "waiting" are config
 
 ![Claude の返答に進捗表が表示された画面](../../docs/images/todo-progress.png)
 
-（イメージ。作者の環境での表示で、表の細かい書式は今の版と少し違います。今の版の出力は下のとおりです）
+（イメージ。作者の環境での以前の表示で、表の書式・項目・言葉は今の版と一部違います。今の版の出力は下のとおりです）
 
 ```
 進捗（TODO.md より自動集計・2026-10-20） / Progress from TODO.md
