@@ -10,6 +10,10 @@ Heading words for "release", "after release", "on hold" and "waiting" are config
 `TODO.md` のチェックボックスを見出し（フェーズ）ごとに数えて、進捗バー・残り件数・公開までの残り・前回の区切りからの増減を表にする Claude Code のプラグインです。
 セッションを始めるたびに表を Claude に渡し、Claude が最初の返答の冒頭で見せます。途中で見たいときは `/todo-progress:progress` で出せます。
 
+![Claude の返答に進捗表が表示された画面](../../docs/images/todo-progress.png)
+
+（イメージ。作者の環境での以前の表示で、表の書式・項目・言葉は今の版と一部違います。今の版の出力は下のとおりです）
+
 ```
 進捗（TODO.md より自動集計・2026-10-20） / Progress from TODO.md
 
