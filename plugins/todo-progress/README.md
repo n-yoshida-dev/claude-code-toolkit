@@ -112,7 +112,12 @@ TODO.md の書き方の例：
 
 ## 設定
 
-`/plugin` で todo-progress を選び、Configure options から変えられます。見出し語はカンマ区切りで複数書け、大文字と小文字は区別しません。
+何も設定しなければ、下の既定値で動きます。変えるときは `/plugin` で todo-progress を選び、Configure options から変えます。
+見出し語はカンマ区切りで複数書け、大文字と小文字は区別しません。ターミナルからなら次のように変えられます（書かなかった設定はそのまま）。
+
+```bash
+echo '{"release_words":"リリース,Release"}' | claude plugin configure todo-progress@yoshida-toolkit --values-stdin
+```
 
 | 設定 | 既定値 | 意味 |
 |---|---|---|
