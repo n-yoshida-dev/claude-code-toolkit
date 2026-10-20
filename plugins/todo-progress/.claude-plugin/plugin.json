@@ -1,0 +1,52 @@
+{
+  "name": "todo-progress",
+  "displayName": "TODO progress",
+  "version": "1.0.0",
+  "description": "TODO.md のチェックボックスを見出しごとに数え、進捗バー・残り件数・公開までの残り・前回の区切りからの増減を表にする。セッションの開始時に Claude に渡して最初の返答で見せ、/todo-progress:progress でいつでも出せる。Counts checkboxes in TODO.md per heading and shows a progress table at session start and on demand.",
+  "author": {
+    "name": "n-yoshida-dev",
+    "url": "https://github.com/n-yoshida-dev"
+  },
+  "homepage": "https://github.com/n-yoshida-dev/claude-code-toolkit/tree/main/plugins/todo-progress",
+  "repository": "https://github.com/n-yoshida-dev/claude-code-toolkit",
+  "license": "MIT",
+  "keywords": ["todo", "progress", "session-start", "hooks"],
+  "userConfig": {
+    "todo_file": {
+      "type": "string",
+      "title": "TODO のファイル / TODO file",
+      "description": "プロジェクトのルートからの TODO のファイル。Path of the TODO file from the project root.",
+      "default": "TODO.md"
+    },
+    "checkpoint_file": {
+      "type": "string",
+      "title": "区切りのファイル / Checkpoint file",
+      "description": "このファイルを最後にコミットした時点と比べて「前回の区切りから」の増減を出す。空にすると出さない。The diff line compares against the last commit of this file. Leave empty to turn it off.",
+      "default": "HANDOFF.md"
+    },
+    "release_words": {
+      "type": "string",
+      "title": "公開の見出し語 / Release heading words",
+      "description": "見出しにこの語を含む最初の節までの未完を「公開まで残り」として数える。カンマ区切り。Comma-separated words that mark the release section.",
+      "default": "公開,Release"
+    },
+    "after_release_words": {
+      "type": "string",
+      "title": "公開後の見出し語 / After-release heading words",
+      "description": "見出しにこの語を含む節は合計に入れず別枠で出す。カンマ区切り。Sections with these words are counted separately.",
+      "default": "公開後,After release,Post-release"
+    },
+    "hold_words": {
+      "type": "string",
+      "title": "保留の見出し語 / On-hold heading words",
+      "description": "見出しにこの語を含む節は合計に入れず別枠で出す。カンマ区切り。Sections with these words are counted separately.",
+      "default": "保留,On hold"
+    },
+    "waiting_words": {
+      "type": "string",
+      "title": "回答待ちの見出し語 / Waiting heading words",
+      "description": "見出しにこの語を含む節は、あなたの回答待ちとして別枠で出す。カンマ区切り。Sections waiting for your answer, counted separately.",
+      "default": "確認待ち,Waiting"
+    }
+  }
+}

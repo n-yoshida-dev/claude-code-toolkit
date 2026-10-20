@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "yoshida-toolkit",
+  "description": "n-yoshida-dev が毎日使っている Claude Code のプラグインとスキルを、ほかの人も使える形にしたもの。Claude Code plugins and skills by n-yoshida-dev.",
+  "owner": {
+    "name": "n-yoshida-dev",
+    "url": "https://github.com/n-yoshida-dev"
+  },
+  "plugins": [
+    {
+      "name": "todo-progress",
+      "source": "./plugins/todo-progress",
+      "description": "TODO.md のチェックボックスを見出しごとに数え、進捗表をセッションの開始時と /todo-progress:progress で出す。Progress table from TODO.md at session start and on demand.",
+      "category": "productivity"
+    }
+  ]
+}
