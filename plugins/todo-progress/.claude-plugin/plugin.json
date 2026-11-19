@@ -1,7 +1,7 @@
 {
   "name": "todo-progress",
   "displayName": "TODO progress",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TODO.md のチェックボックスを見出しごとに数え、進捗バー・残り件数・公開までの残り・前回の区切りからの増減を表にする。セッションの開始時に Claude に渡して最初の返答で見せ、/todo-progress:progress でいつでも出せる。Counts checkboxes in TODO.md per heading and shows a progress table at session start and on demand.",
   "author": {
     "name": "n-yoshida-dev",
